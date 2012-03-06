@@ -17,10 +17,24 @@ int main (int argc, char *argv[])
   string searchString, pattern;
   std::cin >>  searchString >> pattern;
 
+  int test1[] = {1,2,3,4,5,6,7,8};
+  int test2[] = {7,8};
+  
+  rabinKarpSearch (test1, test1 + 8, test2, test2 + 2);
   std::cout << (rabinKarpSearch (searchString.begin(), searchString.end(), pattern.begin(), pattern.end()) != searchString.end());
 }
 
 const int hashBase = 10;
+
+inline int distance (int * ptr1, int * ptr2)
+{
+  return ptr2 - ptr1;
+}
+
+inline void advance (int *&ptr, int distance)
+{
+  ptr += distance;
+}
 
 template<class InputIterator>
 unsigned int hashFunction (InputIterator start, InputIterator end)
@@ -38,13 +52,14 @@ unsigned int hashFunction (InputIterator start, InputIterator end)
 unsigned int hashConst (int patternLength)
 {
   unsigned int ans = 1;
-  while (patternLength-- > 0)
+  while (patternLength-- > 1)
   {
     ans = ans * hashBase;
   }
   return ans;
 }
 
+/* Function tests if two string match */
 template <class InputIterator>
 bool match (InputIterator stringStart1, InputIterator stringEnd1, InputIterator stringStart2, InputIterator stringEnd2)
 {
@@ -62,32 +77,29 @@ bool match (InputIterator stringStart1, InputIterator stringEnd1, InputIterator 
 template<class InputIterator>
 InputIterator rabinKarpSearch (InputIterator stringStart, InputIterator stringEnd, InputIterator patternStart, InputIterator patternEnd)
 {
-
   InputIterator stringPatternLen = stringStart;
   advance (stringPatternLen, distance (patternStart, patternEnd));
   unsigned int searchHash = hashFunction (stringStart, stringPatternLen);
   const unsigned int patternHash =  hashFunction (patternStart, patternEnd);
+  const unsigned int hashConstant = hashConst (distance (patternStart, patternEnd));
   
-  /* This macro is used to compare hashvalues and if they match, check if its a true or a false postitive */
+  int patternLen         = distance (patternStart, patternEnd);
+  int distStringStartEnd = distance (stringStart , stringEnd );
 
-  #define CMP_HASH() \
-  {\
-    if (searchHash == patternHash)\
-    {\
-      if ( match (stringStart, stringPatternLen, patternStart, patternEnd ))\
-      {\
-        return stringStart;\
-      }\
-    }\
-  }
-  
-  CMP_HASH();
-
-  stringStart++, stringPatternLen++;
-
-  for ( ;stringStart != stringEnd; stringStart++, stringPatternLen++)
+  for ( ; distStringStartEnd-- >= patternLen; stringStart++, stringPatternLen++ )
   {
-    CMP_HASH();
+    /* Test if the hashes match */
+    if ( searchHash == patternHash)
+    {
+      /* Check for false positives */
+      if (match (stringStart, stringPatternLen, patternStart, patternEnd))
+      {
+        return stringStart;
+      }
+    }
+  
+    /* Sliding hash */
+    searchHash = ( searchHash - (unsigned int)*stringStart * hashConstant) * hashBase + *stringPatternLen;
   }
 
   return stringEnd;
