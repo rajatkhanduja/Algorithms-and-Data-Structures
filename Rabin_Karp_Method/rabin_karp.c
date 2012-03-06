@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define STRING_LEN 100
+#define STRING_LEN 10000
 #define PATTERN_LEN 100
 
 #define _HASH_BASE 10
@@ -68,10 +68,13 @@ do {\
 \
 } while(0)
 
+
 int main (int argc, char *argv[])
 {
-  char string[] = "t123asdfasdfestabc";
-  char pattern[] = "asdfe";
+  char string[STRING_LEN]; 
+  char pattern[STRING_LEN];
+
+  scanf ("%s %s", string, pattern);
 
   unsigned int t;
   string_search(string, strlen(string), pattern, strlen(pattern), t);
