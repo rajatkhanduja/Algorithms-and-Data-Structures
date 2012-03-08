@@ -31,13 +31,15 @@ do {\
 
 #define _match(_string, _pattern, _len_pattern, _is_match)\
 {\
-  unsigned int tmp = _len_pattern;\
-  while (tmp-- > 0)\
+  unsigned int i, j, tmp = _len_pattern;\
+  /* Using two variables i & j with the intent to allow independent increments. */\
+  for (i = 0, j =0; tmp-- > 0; i++, j++)\
   {\
-    if (*string == *pattern)\
-      continue;\
-    else\
-      _is_match = 0; break;\
+    if (string[i] != pattern[j])\
+    {\
+      _is_match = 0;\
+      break;\
+    }\
   }\
   _is_match = 1;\
 } 
