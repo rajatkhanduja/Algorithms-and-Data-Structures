@@ -13,7 +13,7 @@ int main (void)
     std::cin >> numbers[i];
   }
 
-  mergeSort(numbers);
+  quickSort(numbers);
 
   for (i = 0; i < n; i++)
   {
