@@ -13,7 +13,7 @@ int main (void)
     std::cin >> numbers[i];
   }
 
-  quickSort(numbers);
+  heapSort(numbers);
 
   for (i = 0; i < n; i++)
   {
