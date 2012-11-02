@@ -4,6 +4,8 @@
 #include <queue>
 #include <map>
 #include <set>
+#include <algorithm>
+#include <climits>
 
 using std::vector;
 using std::list;
@@ -22,14 +24,28 @@ class edgeWeight
     
     bool operator< (const edgeWeight& rhs) const
     {
-      return this->weight > rhs.weight;
+      if (this->weight == rhs.weight)
+      {
+        if (this->from == rhs.from)
+        {
+          return this->to > rhs.to;
+        }
+        else
+        {
+          return this->from > rhs.from;
+        }
+      }
+      else
+      {
+        return this->weight > rhs.weight;
+      }
     }
 };
 
-int dijkstraShortestDistance (const Graph& g, const int& source, const int& destination)
+vector<int> dijkstraShortestDistance (const Graph& g, const int& source)
 {
   priority_queue<edgeWeight> minHeap;
-  vector<int> distances(g.size());
+  vector<int> distances(g.size(), INT_MAX);
   set<int> coveredPoints;
 
   int sourceIndex = source - 1;
@@ -39,7 +55,7 @@ int dijkstraShortestDistance (const Graph& g, const int& source, const int& dest
   distances[sourceIndex] = 0;
   coveredPoints.insert(curVertexIndex + 1);
   edgeWeight nextEdge;
-  while (coveredPoints.size() != g.size())
+  while (curVertexIndex == sourceIndex || minHeap.size() > 0)
   {
     list<pair<int, int> >::const_iterator it = g[curVertexIndex].begin();
     while (it != g[curVertexIndex].end())
@@ -49,20 +65,17 @@ int dijkstraShortestDistance (const Graph& g, const int& source, const int& dest
       it++;
     }
     nextEdge = minHeap.top();
+    std::cout << nextEdge.weight << std::endl;
     minHeap.pop();
-    distances[nextEdge.to - 1] = distances[nextEdge.from - 1] + nextEdge.weight;
-    /* If the inserted vertex itself is the destination, return. */
-    if (nextEdge.to == destination)
-    {
-      return distances[nextEdge.to - 1];
-    }
-
+    distances[nextEdge.to - 1] = std::min (distances[nextEdge.from - 1] 
+                                            + nextEdge.weight, 
+                                           distances[nextEdge.to - 1]);
     curVertexIndex = nextEdge.to - 1;
     coveredPoints.insert(curVertexIndex + 1);
   }
 
   /* This step shouldn't be required. */
-  return distances[destination - 1];
+  return distances;
 }
 
 int main (void)
@@ -85,12 +98,16 @@ int main (void)
     /* Input vertices go from 1 to n. */
     std::cin >> vertex1 >> vertex2 >> weight;
     g[vertex1 - 1].push_back(make_pair(vertex2, weight));    
+    std::cout << vertex1 << "-" << vertex2 << "(" << weight << ")" <<std::endl;
   }
 
   /* Read source and destination. */
   std::cin >> vertex1 >> vertex2;
-
-  std::cout << "Shortest distance : " << dijkstraShortestDistance (g, vertex1, vertex2) << std::endl;
-
+  vector<int> distances = dijkstraShortestDistance (g, vertex1);
+  
+  for (int i = 0; i < distances.size(); i++)
+  {
+    std::cout << i + 1 << " -- " << distances[i] << std::endl;
+  }
   return 0;
 }
