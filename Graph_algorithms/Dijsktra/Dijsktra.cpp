@@ -46,32 +46,39 @@ vector<int> dijkstraShortestDistance (const Graph& g, const int& source)
 {
   priority_queue<edgeWeight> minHeap;
   vector<int> distances(g.size(), INT_MAX);
-  set<int> coveredPoints;
+  set<int> known;
 
   int sourceIndex = source - 1;
   distances[sourceIndex] = 0;
     
-  int curVertexIndex = sourceIndex;
   distances[sourceIndex] = 0;
-  coveredPoints.insert(curVertexIndex + 1);
+  known.insert(sourceIndex + 1);
   edgeWeight nextEdge;
-  while (curVertexIndex == sourceIndex || minHeap.size() > 0)
+  list<pair<int, int> >::const_iterator it = g[sourceIndex].begin();
+  while (it != g[sourceIndex].end())
   {
-    list<pair<int, int> >::const_iterator it = g[curVertexIndex].begin();
+    distances[it->first] = it->second;
+    edgeWeight tmp(sourceIndex + 1, it->first, it->second);
+    minHeap.push(tmp);
+    it++;
+  }
+  
+  while (minHeap.size() > 0)
+  {
+    nextEdge = minHeap.top();
+    minHeap.pop();
+    distances[nextEdge.to - 1] = std::min (distances[nextEdge.from - 1] 
+                                            + nextEdge.weight, 
+                                           distances[nextEdge.to - 1]);
+    int curVertexIndex = nextEdge.to - 1;
+    it = g[curVertexIndex].begin();
     while (it != g[curVertexIndex].end())
     {
       edgeWeight tmp(curVertexIndex + 1, it->first, it->second);
       minHeap.push(tmp);
       it++;
     }
-    nextEdge = minHeap.top();
-    std::cout << nextEdge.weight << std::endl;
-    minHeap.pop();
-    distances[nextEdge.to - 1] = std::min (distances[nextEdge.from - 1] 
-                                            + nextEdge.weight, 
-                                           distances[nextEdge.to - 1]);
-    curVertexIndex = nextEdge.to - 1;
-    coveredPoints.insert(curVertexIndex + 1);
+    known.insert(curVertexIndex + 1);
   }
 
   /* This step shouldn't be required. */
@@ -98,7 +105,6 @@ int main (void)
     /* Input vertices go from 1 to n. */
     std::cin >> vertex1 >> vertex2 >> weight;
     g[vertex1 - 1].push_back(make_pair(vertex2, weight));    
-    std::cout << vertex1 << "-" << vertex2 << "(" << weight << ")" <<std::endl;
   }
 
   /* Read source and destination. */
