@@ -16,35 +16,25 @@ using std::set;
 
 typedef vector<list<pair<int, int> > > Graph;   // Use this to represent graphsa
 
-class edgeWeight
+typedef pair<int,pair<int, int> > edgeWeight;
+inline int weight(const edgeWeight& e)
 {
-  public:
-    int from, to, weight;
-    edgeWeight(const int& v1 = -1, const int& v2 = -1, const int& w = 0) : from(v1), to(v2), weight(w){}
-    
-    bool operator< (const edgeWeight& rhs) const
-    {
-      if (this->weight == rhs.weight)
-      {
-        if (this->from == rhs.from)
-        {
-          return this->to > rhs.to;
-        }
-        else
-        {
-          return this->from > rhs.from;
-        }
-      }
-      else
-      {
-        return this->weight > rhs.weight;
-      }
-    }
-};
+  return e.first;
+}
+
+inline int fromVertex(const edgeWeight& e)
+{
+  return e.second.first;
+}
+
+inline int toVertex(const edgeWeight& e)
+{
+  return e.second.second;
+}
 
 vector<int> dijkstraShortestDistance (const Graph& g, const int& source)
 {
-  priority_queue<edgeWeight> minHeap;
+  priority_queue<edgeWeight, vector<edgeWeight>, std::greater<edgeWeight> > minHeap;
   vector<int> distances(g.size(), INT_MAX);
   set<int> known;
 
@@ -58,7 +48,7 @@ vector<int> dijkstraShortestDistance (const Graph& g, const int& source)
   while (it != g[sourceIndex].end())
   {
     distances[it->first] = it->second;
-    edgeWeight tmp(sourceIndex + 1, it->first, it->second);
+    edgeWeight tmp = edgeWeight(it->second, make_pair(sourceIndex + 1, it->first));
     minHeap.push(tmp);
     it++;
   }
@@ -67,14 +57,14 @@ vector<int> dijkstraShortestDistance (const Graph& g, const int& source)
   {
     nextEdge = minHeap.top();
     minHeap.pop();
-    distances[nextEdge.to - 1] = std::min (distances[nextEdge.from - 1] 
-                                            + nextEdge.weight, 
-                                           distances[nextEdge.to - 1]);
-    int curVertexIndex = nextEdge.to - 1;
+    distances[toVertex(nextEdge) - 1] = std::min (distances[fromVertex(nextEdge) - 1] 
+                                            + weight(nextEdge), 
+                                            distances[toVertex(nextEdge) - 1]);
+    int curVertexIndex = toVertex(nextEdge) - 1;
     it = g[curVertexIndex].begin();
     while (it != g[curVertexIndex].end())
     {
-      edgeWeight tmp(curVertexIndex + 1, it->first, it->second);
+      edgeWeight tmp = edgeWeight(it->second, make_pair(curVertexIndex + 1, it->first));
       minHeap.push(tmp);
       it++;
     }
