@@ -32,47 +32,64 @@ inline int toVertex(const edgeWeight& e)
   return e.second.second;
 }
 
-vector<int> dijkstraShortestDistance (const Graph& g, const int& source)
+void printDistances (const vector<int>& distances)
 {
-  priority_queue<edgeWeight, vector<edgeWeight>, std::greater<edgeWeight> > minHeap;
-  vector<int> distances(g.size(), INT_MAX);
-  set<int> known;
-
-  int sourceIndex = source - 1;
-  distances[sourceIndex] = 0;
-    
-  distances[sourceIndex] = 0;
-  known.insert(sourceIndex + 1);
-  edgeWeight nextEdge;
-  list<pair<int, int> >::const_iterator it = g[sourceIndex].begin();
-  while (it != g[sourceIndex].end())
+  for(int i = 0; i < distances.size(); i++)
   {
-    distances[it->first] = it->second;
-    edgeWeight tmp = edgeWeight(it->second, make_pair(sourceIndex + 1, it->first));
-    minHeap.push(tmp);
+    std::cout << i << " -- " << distances[i] << std::endl;
+  }
+}
+
+int minVertex (vector<int>& distances, vector<bool>& visited)
+{
+  int minVal = INT_MAX, minIndex = -1;
+  for (int i = 0; i < distances.size(); i++)
+  {
+    if (visited[i])
+      continue;
+    
+    if (minVal > distances[i])
+    {
+      minIndex = i;
+      minVal = distances[i];
+    }
+  }
+  return minIndex;
+}
+
+int dijkstraShortestDistance (const Graph& g, const int& source, const int& destination)
+{
+  int nVertices = g.size();
+  vector<int> distances(nVertices, INT_MAX);
+  vector<bool> visited(nVertices);
+  vector<int> minDistance(nVertices, INT_MAX);
+
+  int last = source - 1, v;
+  distances[last] = minDistance[last] = 0;
+  list<pair<int,int> >::const_iterator it = g[last].begin();
+  
+  while (it != g[last].end())
+  {
+    distances[it->first - 1] = it->second;
     it++;
   }
-  
-  while (minHeap.size() > 0)
+
+  while ( last != destination - 1)
   {
-    nextEdge = minHeap.top();
-    minHeap.pop();
-    distances[toVertex(nextEdge) - 1] = std::min (distances[fromVertex(nextEdge) - 1] 
-                                            + weight(nextEdge), 
-                                            distances[toVertex(nextEdge) - 1]);
-    int curVertexIndex = toVertex(nextEdge) - 1;
-    it = g[curVertexIndex].begin();
-    while (it != g[curVertexIndex].end())
+    // Pick next v such that distances[v] is minimized
+    v = minVertex(distances, visited);  /* TODO : use a better DS here. */
+    it = g[v].begin();
+    while (it != g[v].end())
     {
-      edgeWeight tmp = edgeWeight(it->second, make_pair(curVertexIndex + 1, it->first));
-      minHeap.push(tmp);
-      it++;
+      distances[it->first - 1] = std::min (distances[it->first - 1], 
+                                  distances[v] + it->second);
+      it++;                                  
     }
-    known.insert(curVertexIndex + 1);
+    last = v;
+    visited[v] = true;
   }
 
-  /* This step shouldn't be required. */
-  return distances;
+  return distances[destination - 1];
 }
 
 int main (void)
@@ -99,11 +116,7 @@ int main (void)
 
   /* Read source and destination. */
   std::cin >> vertex1 >> vertex2;
-  vector<int> distances = dijkstraShortestDistance (g, vertex1);
-  
-  for (int i = 0; i < distances.size(); i++)
-  {
-    std::cout << i + 1 << " -- " << distances[i] << std::endl;
-  }
+  int distance = dijkstraShortestDistance (g, vertex1, vertex2);
+  std::cout << distance << std::endl;
   return 0;
 }

@@ -98,7 +98,7 @@ InputIterator rabinKarpSearch (InputIterator stringStart, InputIterator stringEn
       }
     }
   
-    /* Sliding hash */
+    /* Sliding/Rolling hash */
     searchHash = ( searchHash - (unsigned int)*stringStart * hashConstant) * hashBase + *stringPatternLen;
   }
 
