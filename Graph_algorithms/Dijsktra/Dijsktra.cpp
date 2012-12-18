@@ -62,22 +62,14 @@ int dijkstraShortestDistance (const Graph& g, const int& source, const int& dest
   int nVertices = g.size();
   vector<int> distances(nVertices, INT_MAX);
   vector<bool> visited(nVertices);
-  vector<int> minDistance(nVertices, INT_MAX);
 
-  int last = source - 1, v;
-  distances[last] = minDistance[last] = 0;
-  list<pair<int,int> >::const_iterator it = g[last].begin();
-  
-  while (it != g[last].end())
-  {
-    distances[it->first - 1] = it->second;
-    it++;
-  }
+  int v = source - 1;
+  distances[v] = 0;
+  list<pair<int,int> >::const_iterator it;
 
-  while ( last != destination - 1)
+  while ( v >= 0)
   {
     // Pick next v such that distances[v] is minimized
-    v = minVertex(distances, visited);  /* TODO : use a better DS here. */
     it = g[v].begin();
     while (it != g[v].end())
     {
@@ -85,8 +77,10 @@ int dijkstraShortestDistance (const Graph& g, const int& source, const int& dest
                                   distances[v] + it->second);
       it++;                                  
     }
-    last = v;
+
     visited[v] = true;
+
+    v = minVertex(distances, visited);  /* TODO : use a better DS here. */
   }
 
   return distances[destination - 1];

@@ -1,34 +1,14 @@
 #include <iostream>
 #include <string>
-#include <cassert>
+#include <vector>
 
 using namespace std;
 
 string longestCommonString (string s1, string s2)
 {
-  int **lcs = new int*[s1.size() + 1];
-
-  assert (lcs);
-  
-  int i, j;
-  for (i = 0; i < s1.size() + 1; i++)
-  {
-    lcs[i] = new int[s2.size() + 1];
-    assert (lcs[i]);
-    if (i == 0)
-    {
-      for (j = 0; j < s2.size() + 1; j++)
-      {
-        lcs[i][j] = 0;
-      }
-    }
-    else
-    {
-      lcs[i][0] = 0;    
-    }
-  }
-  
+  vector<vector<int> > lcs (s1.size() + 1, vector<int>(s2.size() + 1, 0));
   int maxVal = 0, maxValI = -1, maxValJ = -1;
+  int i, j;
   for (i = 1; i < s1.size() + 1; i++)
   {
     for (j = 1; j < s2.size() + 1; j++)
